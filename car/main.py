@@ -14,15 +14,15 @@ def motor_backward():
     PWM.setMotorModel(0, 0, 0, 0)
 
 def motor_left():
-    PWM.setMotorModel(100, 100, 2000, 2000)
+    PWM.setMotorModel(600, 600, 4000, 4000)
     print("Moving left...")
-    time.sleep(1)
+    time.sleep(1.5)
     PWM.setMotorModel(0, 0, 0, 0)
 
 def motor_right():
-    PWM.setMotorModel(1000, 1000, -1000, -1000)
+    PWM.setMotorModel(4000, 4000, 600, 600)
     print("Moving right...")
-    time.sleep(1)
+    time.sleep(1.5)
     PWM.setMotorModel(0, 0, 0, 0)
 
 def motor_test():
