@@ -14,7 +14,7 @@ def motor_backward():
     PWM.setMotorModel(0, 0, 0, 0)
 
 def motor_left():
-    PWM.setMotorModel(-1000, -1000, 1000, 1000)
+    PWM.setMotorModel(300, 300, 1000, 1000)
     print("Moving left...")
     time.sleep(1)
     PWM.setMotorModel(0, 0, 0, 0)
