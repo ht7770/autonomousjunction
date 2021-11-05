@@ -32,7 +32,7 @@ def motor_test():
     rightrear = int(input("Enter value for right rear motor: "))
     usertime = int(input("Enter a time till motor shutoff: "))
     PWM.setMotorModel(leftfront, leftrear, rightfront, rightrear)
-    time.sleep(usetime)
+    time.sleep(usertime)
     PWM.setMotorModel(0,0,0,0)
 
 
