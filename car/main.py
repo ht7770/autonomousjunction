@@ -1,5 +1,7 @@
 from Motor import *
+import time
 PWM=Motor()
+
 def motor_forward():
     PWM.setMotorModel(1000, 1000, 1000, 1000)
     print("Moving forwards...")
@@ -49,7 +51,7 @@ if __name__ == '__main__':
         motor_left()
     elif sys.argv[1] == 'right':
         motor_right()
-    elif sys.argv[1] == 'testing':
+    elif sys.argv[1] == 'test':
         motor_test()
 
 
