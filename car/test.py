@@ -63,13 +63,3 @@ if __name__ == '__main__':
         test_Led()
     elif sys.argv[1] == 'Motor':
         test_Motor()
-    elif sys.argv[1] == 'Ultrasonic':
-        test_Ultrasonic()
-    elif sys.argv[1] == 'Infrared':
-        test_Infrared()
-    elif sys.argv[1] == 'Servo':
-        test_Servo()
-    elif sys.argv[1] == 'ADC':
-        test_Adc()
-    elif sys.argv[1] == 'Buzzer':
-        test_Buzzer()
