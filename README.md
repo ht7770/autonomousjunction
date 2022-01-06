@@ -13,7 +13,7 @@ Computer used for Car - RPi 3 Model A+
 
 Code for driving and initilising the RPi with motors was based on code by Freenove - https://github.com/Freenove/Freenove_4WD_Smart_Car_Kit_for_Raspberry_Pi
 
-# Roadside Unit
+# Roadside_Unit
 
 This folder contains all the code that sets up the roadside unit, installs dependencies and allows passthrough of messages between any connected vehicles and google cloud.
 
