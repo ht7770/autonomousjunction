@@ -15,9 +15,9 @@ cloudRegion = 'europe-west1'
 registryID = 'azazel-devices'
 deviceID = ''
 gatewayID = 'roadsideunit'
-certificateFile = ''
+certificateFile = 'roots.pem'
 algorithm = 'RS256'
-private_key_file = ''
+private_key_file = 'rsa_private.pem'
 JWTexpire = 60
 
 gatewayConnected = False
