@@ -1,3 +1,4 @@
+from __future__ import print_function
 import paho.mqtt.client as mqtt
 import jwt
 import json
@@ -99,7 +100,7 @@ def createMQTT(projectID, cloudRegion, registryID, gatewayID, private_key_file, 
     return client
 
 
-def main:
+def main():
     global gateway
 
     client = createMQTT(projectID, cloudRegion, registryID, gatewayID, private_key_file, algorithm, certificateFile, gateway.mqtt_bridge_hostname, gateway.mqtt_bridge_port, JWTexpire)
@@ -109,5 +110,6 @@ def main:
         print('connect status {}'.format(gateway.connected))
         time.sleep(1)
 
-
+if __name__ == '__main__':
+    main()
 
