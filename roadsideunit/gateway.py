@@ -95,7 +95,7 @@ def createMQTT(projectID, cloudRegion, registryID, gatewayID, private_key_file, 
             registryID,
             gatewayID)))
 
-    client.username_pw_set(username='unused', password = createJWT(projectID, algorithm, private_key_file, JWTexpire)
+    client.username_pw_set(username='unused', password = createJWT(projectID, algorithm, private_key_file, JWTexpire))
 
     client.tls_set(ca_certs=certificateFile, tls_version=ssl.PROTOCOL_TLSv1_2)
     client.on_connect = on_connect
