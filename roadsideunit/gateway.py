@@ -10,6 +10,15 @@ import datetime
 import time
 
 
+HOST = ''
+PORT = 10000
+BUFSIZE = 2048
+ADDR = (HOST, PORT)
+
+udpSerSock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+udpSerSock.setblocking(False)
+udpSerSock.bind(ADDR)
+
 
 projectID = 'azazel-330913'
 cloudRegion = 'europe-west1'
