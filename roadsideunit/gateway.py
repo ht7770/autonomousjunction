@@ -88,40 +88,41 @@ def on_disconnect(client, unused_userdata, rc):
     #implement backoff
     client.connect(gateway.mqtt_bridge_hostname, gateway.mqtt_bridge_port)
 
-    def on_publish(unused_client, userdata, mid):
-        """Paho callback when a message is sent to the broker."""
-        print('on_publish, userdata {}, mid {}'.format(userdata, mid))
 
-        try:
-            client_addr, message = gateway.pending_responses.pop(mid)
-            print('sending data over UDP {} {}'.format(client_addr, message))
-            udpSerSock.sendto(message, client_addr)
-            print('pending response count {}'.format(
-                len(gateway.pending_responses)))
-        except KeyError:
-            print('Unable to find key {}'.format(mid))
 
-    def on_subscribe(unused_client, unused_userdata, mid, granted_qos):
-        print('on_subscribe: mid {}, qos {}'.format(mid, granted_qos))
 
-    def on_message(unused_client, unused_userdata, message):
-        """Callback when the device receives a message on a subscription."""
-        payload = message.payload.decode('utf8')
-        print('Received message \'{}\' on topic \'{}\' with Qos {}'.format(
-            payload, message.topic, str(message.qos)))
+def on_publish(unused_client, userdata, mid):
+     """Paho callback when a message is sent to the broker."""
+    print('on_publish, userdata {}, mid {}'.format(userdata, mid))
+    try:
+        client_addr, message = gateway.pending_responses.pop(mid)
+        print('sending data over UDP {} {}'.format(client_addr, message))
+        udpSerSock.sendto(message, client_addr)
+        print('pending response count {}'.format(
+            len(gateway.pending_responses)))
+    except KeyError:
+        print('Unable to find key {}'.format(mid))
 
-        try:
-            client_addr = gateway.subscriptions[message.topic]
-            print('Relaying config[{}] to {}'.format(payload, client_addr))
-            if payload == 'ON' or payload == b'ON':
-                udpSerSock.sendto('ON'.encode('utf8'), client_addr)
-            elif payload == 'OFF' or payload == b'OFF':
-                udpSerSock.sendto('OFF'.encode('utf8'), client_addr)
-            else:
-                print('Unrecognized command: {}'.format(payload))
-        except KeyError:
-            print('Nobody subscribes to topic {}'.format(message.topic))
+def on_subscribe(unused_client, unused_userdata, mid, granted_qos):
+    print('on_subscribe: mid {}, qos {}'.format(mid, granted_qos))
 
+def on_message(unused_client, unused_userdata, message):
+    """Callback when the device receives a message on a subscription."""
+    payload = message.payload.decode('utf8')
+    print('Received message \'{}\' on topic \'{}\' with Qos {}'.format(
+        payload, message.topic, str(message.qos)))
+
+    try:
+        client_addr = gateway.subscriptions[message.topic]
+        print('Relaying config[{}] to {}'.format(payload, client_addr))
+        if payload == 'ON' or payload == b'ON':
+            udpSerSock.sendto('ON'.encode('utf8'), client_addr)
+        elif payload == 'OFF' or payload == b'OFF':
+            udpSerSock.sendto('OFF'.encode('utf8'), client_addr)
+        else:
+            print('Unrecognized command: {}'.format(payload))
+    except KeyError:
+        print('Nobody subscribes to topic {}'.format(message.topic))
 
 def createMQTT(projectID, cloudRegion, registryID, gatewayID, private_key_file, algorithm, certificateFile, mqtt_bridge_hostname, mqtt_bridge_port, JWTexpire):
 
@@ -135,11 +136,13 @@ def createMQTT(projectID, cloudRegion, registryID, gatewayID, private_key_file, 
     client.username_pw_set(username='unused', password = createJWT(projectID, algorithm, private_key_file, JWTexpire))
 
     client.tls_set(ca_certs=certificateFile, tls_version=ssl.PROTOCOL_TLSv1_2)
+
     client.on_connect = on_connect
+    client.on_publish = on_publish
     client.on_disconnect = on_disconnect
     client.on_message = on_message
     client.on_subscribe = on_subscribe
-    client.on_publish = on_publish
+
 
     client.connect(mqtt_bridge_hostname, mqtt_bridge_port)
 
