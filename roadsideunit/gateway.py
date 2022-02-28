@@ -145,7 +145,7 @@ def createMQTT(projectID, cloudRegion, registryID, gatewayID, private_key_file, 
 
     client.connect(mqtt_bridge_hostname, mqtt_bridge_port)
 
-    mqtt_topic = 'projects/azazel-330913/topics/gateway-telemetry'
+    mqtt_topic = '/devices/{}/events'.format(gatewayID)
     client.publish(mqtt_topic, 'Roadside Unit Started', qos=0)
     client.subscribe('projects/{}/locations/{}/registries/{}/devices/{}/commands/#'. format(projectID, cloudRegion, registryID, gatewayID))
 
@@ -205,6 +205,7 @@ def main():
 
             message = template.format(device_id, 'attach')
             udpSerSock.sendto(message.encode('utf8'), client_addr)
+
         elif action == 'detach':
             detach_topic = '/devices/{}/detach'.format(device_id)
             print(detach_topic)
