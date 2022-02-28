@@ -30,7 +30,7 @@ algorithm = 'RS256'
 private_key_file = 'rsa_private.pem'
 JWTexpire = 60
 
-
+# kill -9 $(ps -A | grep python | awk '{print $1}')
 
 
 
@@ -145,8 +145,9 @@ def createMQTT(projectID, cloudRegion, registryID, gatewayID, private_key_file, 
 
     client.connect(mqtt_bridge_hostname, mqtt_bridge_port)
 
-    mqtt_topic = '/devices/{}/events'.format(gatewayID)
-    client.publish(mqtt_topic, 'RPI Gateway started.', qos=0)
+    mqtt_topic = 'projects/azazel-330913/topics/gateway-telemetry'
+    client.publish(mqtt_topic, 'Roadside Unit Started', qos=0)
+    client.subscribe('projects/{}/locations/{}/registries/{}/devices/{}/commands/#'. format(projectID, cloudRegion, registryID, gatewayID))
 
     return client
 
