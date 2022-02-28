@@ -158,7 +158,6 @@ def main():
 
     while True:
         client.loop()
-        print("TEST")
         if gateway.connected is False:
             print('connect status {}'.format(gateway.connected))
             time.sleep(1)
