@@ -92,7 +92,6 @@ def on_disconnect(client, unused_userdata, rc):
 
 
 def on_publish(unused_client, userdata, mid):
-     """Paho callback when a message is sent to the broker."""
     print('on_publish, userdata {}, mid {}'.format(userdata, mid))
     try:
         client_addr, message = gateway.pending_responses.pop(mid)
