@@ -39,8 +39,8 @@ class Gateway:
     connected = False
     mqtt_bridge_hostname = 'mqtt.googleapis.com'
     mqtt_bridge_port = 8883
-    mqtt_error_topic = ''
-    mqtt_config_topic = ''
+    mqtt_error_topic = 'projects/azazel-330913/topics/gateway-data'
+    mqtt_config_topic = 'projects/azazel-330913/topics/gateway-data'
     pending_responses = {}
     pending_subscribes = {}
     subscriptions = {}
@@ -82,8 +82,7 @@ def on_disconnect(client, unused_userdata, rc):
     print('on_disconnect', error_str(rc))
     gateway.connected = False
     #implement backoff
-    client.connect(
-        gateway.mqtt_bridge_hostname, gateway.mqtt_bridge_port)
+    client.connect(gateway.mqtt_bridge_hostname, gateway.mqtt_bridge_port)
 
 
 def createMQTT(projectID, cloudRegion, registryID, gatewayID, private_key_file, algorithm, certificateFile, mqtt_bridge_hostname, mqtt_bridge_port, JWTexpire):
@@ -118,6 +117,8 @@ def main():
     if gateway.connected is False:
         print('connect status {}'.format(gateway.connected))
         time.sleep(1)
+
+
 
 if __name__ == '__main__':
     main()
