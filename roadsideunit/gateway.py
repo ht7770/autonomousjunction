@@ -157,7 +157,7 @@ def createMQTT(projectID, cloudRegion, registryID, gatewayID, private_key_file, 
 def main():
     global gateway
 
-    duration = 100
+    duration = 1000
 
     client = createMQTT(projectID, cloudRegion, registryID, gatewayID, private_key_file, algorithm, certificateFile, gateway.mqtt_bridge_hostname, gateway.mqtt_bridge_port, JWTexpire)
 
