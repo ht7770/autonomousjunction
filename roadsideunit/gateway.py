@@ -1,25 +1,24 @@
-from __future__ import print_function
 import paho.mqtt.client as mqtt
 import jwt
 import json
 import socket
 import ssl
 import os
-import argparse
 import datetime
 import time
+import random
 
 
-HOST = ''
-PORT = 10000
-BUFSIZE = 2048
-ADDR = (HOST, PORT)
+# The initial backoff time after a disconnection occurs, in seconds.
+minimum_backoff_time = 1
 
-udpSerSock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-udpSerSock.setblocking(False)
-udpSerSock.bind(ADDR)
+# The maximum backoff time before giving up, in seconds.
+MAXIMUM_BACKOFF_TIME = 32
 
+# Whether to wait with exponential backoff before publishing.
+should_backoff = False
 
+# List of required variables needed
 projectID = 'azazel-330913'
 cloudRegion = 'europe-west1'
 registryID = 'project-registry'
@@ -30,55 +29,77 @@ algorithm = 'RS256'
 private_key_file = 'rsa_private.pem'
 JWTexpire = 60
 
+
+# Command for killing python process on RPi when socket is still in use error occurs on program restart
 # kill -9 $(ps -A | grep python | awk '{print $1}')
 
 
-
+# Gateway class to store details about the gateway
 class Gateway:
 
     connected = False
     mqtt_bridge_hostname = 'mqtt.googleapis.com'
     mqtt_bridge_port = 8883
-    mqtt_error_topic = 'projects/azazel-330913/topics/gatewayerrors'
-    mqtt_config_topic = 'projects/azazel-330913/topics/gatewayconfig'
-    pending_responses = {}
-    pending_subscribes = {}
-    subscriptions = {}
+    mqtt_error_topic = '/devices/{}/gatewayerrors'.format(gatewayID)
+    mqtt_config_topic = '/devices/{}/gatewayconfig'.format(gatewayID)
+    mqtt_command_topic = '/devices/{}/commands/#'.format(gatewayID)
 
 gateway = Gateway()
 
+# Function that creates a JWT so that google cloud can authenticate the gateway and any bound devices
 def createJWT(projectID, algorithm, private_key_file, JWTexpire):
-
     token = {
+        # Time token was issued
         'iat' : datetime.datetime.utcnow(),
+        # Expiry of the token
         'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=JWTexpire),
+        # Audience field is set to the projectID in google cloud as per google documentation
         'aud' : projectID
     }
 
+    # opens private key and stores in variable
     with open(private_key_file, 'r') as reader:
         privateKey = reader.read()
 
-    print('JWT being created')
+    # console output so we can see JWT is being created
+    print('JWT being created...')
+    time.sleep(0.1)
+    print("...")
+    JWT = jwt.encode(token, privateKey, algorithm=algorithm)
+    print('JWT created!')
+    return JWT
 
-    return jwt.encode(token, privateKey, algorithm=algorithm)
 
+
+# Following functions handle Paho-MQTT callbacks
 def error_str(rc):
+    # Converts paho errors into strings
     return '{}: {}'.format(rc, mqtt.error_string(rc))
 
+
+
 def on_connect(client, unused_userdata, unused_flags, rc):
-    """Callback for when a device connects."""
+    # Callback for when a device connects
     print('on_connect', mqtt.connack_string(rc))
 
     gateway.connected = True
     if gateway.connected == True:
         print("Gateway connected")
 
-    # Subscribe to the config and error topics.
+    global should_backoff
+    global minimum_backoff_time
+    should_backoff = False
+    minimum_backoff_time = 1
+
+    # Subscribe to the config, error and command topics.
     client.subscribe(gateway.mqtt_config_topic, qos=1)
     client.subscribe(gateway.mqtt_error_topic, qos=0)
+    client.subscribe(gateway.mqtt_command_topic, qos=1)
+
+
 
 def on_disconnect(client, unused_userdata, rc):
-    """Paho callback for when a device disconnects."""
+    # Callback for when a device disconnects
     print('on_disconnect', error_str(rc))
     gateway.connected = False
 
@@ -93,47 +114,30 @@ def on_disconnect(client, unused_userdata, rc):
 
 def on_publish(unused_client, userdata, mid):
     print('on_publish, userdata {}, mid {}'.format(userdata, mid))
-    try:
-        client_addr, message = gateway.pending_responses.pop(mid)
-        print('sending data over UDP {} {}'.format(client_addr, message))
-        udpSerSock.sendto(message, client_addr)
-        print('pending response count {}'.format(
-            len(gateway.pending_responses)))
-    except KeyError:
-        print('Unable to find key {}'.format(mid))
+
+
 
 def on_subscribe(unused_client, unused_userdata, mid, granted_qos):
     print('on_subscribe: mid {}, qos {}'.format(mid, granted_qos))
 
+
 def on_message(unused_client, unused_userdata, message):
-    """Callback when the device receives a message on a subscription."""
-    payload = message.payload.decode('utf8')
-    print('Received message \'{}\' on topic \'{}\' with Qos {}'.format(
-        payload, message.topic, str(message.qos)))
+    payload = str(message.payload.decode("utf-8"))
+    print(
+        "Received message '{}' on topic '{}' with Qos {}".format(
+            payload, message.topic, str(message.qos)
+        )
+    )
 
-    try:
-        client_addr = gateway.subscriptions[message.topic]
-        print('Relaying config[{}] to {}'.format(payload, client_addr))
-        if payload == 'ON' or payload == b'ON':
-            udpSerSock.sendto('ON'.encode('utf8'), client_addr)
-        elif payload == 'OFF' or payload == b'OFF':
-            udpSerSock.sendto('OFF'.encode('utf8'), client_addr)
-        else:
-            print('Unrecognized command: {}'.format(payload))
-    except KeyError:
-        print('Nobody subscribes to topic {}'.format(message.topic))
-
+# Function that creates the MQTT client
 def createMQTT(projectID, cloudRegion, registryID, gatewayID, private_key_file, algorithm, certificateFile, mqtt_bridge_hostname, mqtt_bridge_port, JWTexpire):
 
 
-    client = mqtt.Client(client_id=('projects/{}/locations/{}/registries/{}/devices/{}'.format(
-            projectID,
-            cloudRegion,
-            registryID,
-            gatewayID)))
+    client = mqtt.Client(client_id=('projects/{}/locations/{}/registries/{}/devices/{}'.format(projectID, cloudRegion, registryID, gatewayID)))
 
-    client.username_pw_set(username='unused', password = createJWT(projectID, algorithm, private_key_file, JWTexpire))
-
+    # Google cloud only takes values in the password field
+    client.username_pw_set(username='unused', password =createJWT(projectID, algorithm, private_key_file, JWTexpire))
+    # Enable SSl/TLS
     client.tls_set(ca_certs=certificateFile, tls_version=ssl.PROTOCOL_TLSv1_2)
 
     client.on_connect = on_connect
@@ -142,95 +146,37 @@ def createMQTT(projectID, cloudRegion, registryID, gatewayID, private_key_file, 
     client.on_message = on_message
     client.on_subscribe = on_subscribe
 
-
+    # Connect to MQTT bridge using google hostname and recommended port
     client.connect(mqtt_bridge_hostname, mqtt_bridge_port)
 
     mqtt_topic = '/devices/{}/events'.format(gatewayID)
     client.publish(mqtt_topic, 'Roadside Unit Started', qos=0)
-    client.subscribe('projects/{}/locations/{}/registries/{}/devices/{}/commands/#'. format(projectID, cloudRegion, registryID, gatewayID))
-
     return client
 
 
 def main():
     global gateway
 
+    duration = 100
+
     client = createMQTT(projectID, cloudRegion, registryID, gatewayID, private_key_file, algorithm, certificateFile, gateway.mqtt_bridge_hostname, gateway.mqtt_bridge_port, JWTexpire)
 
-    while True:
+    for i in range(1, duration):
         client.loop()
-        if gateway.connected is False:
-            print('connect status {}'.format(gateway.connected))
-            time.sleep(1)
-            continue
 
-        try:
-            data, client_addr = udpSerSock.recvfrom(BUFSIZE)
-        except socket.error:
-            continue
-        print('[{}]: From Address {}:{} receive data: {}'.format(
-            time.ctime(), client_addr[0], client_addr[1], data.decode("utf-8")))
+        if should_backoff:
+            if minimum_backoff_time > MAXIMUM_BACKOFF_TIME:
+                print("Exceeded max backoff time")
+                break
 
-        command = json.loads(data.decode('utf-8'))
-        if not command:
-            print('invalid json command {}'.format(data))
-            continue
+            delay = minimum_backoff_time + random.randint(0, 1000) / 1000.0
+            time.sleep(delay)
+            minimum_backoff_time *= 2
+            client.connect(gateway.mqtt_bridge_hostname, gateway.mqtt_bridge_port)
 
-        action = command["action"]
-        device_id = command["device"]
-        template = '{{ "device": "{}", "command": "{}", "status" : "ok" }}'
 
-        if action == 'event':
-            print('Sending telemetry event for device {}'.format(device_id))
-            payload = command["data"]
 
-            mqtt_topic = '/devices/{}/events'.format(device_id)
-            print('Publishing message to topic {} with payload \'{}\''.format(
-                mqtt_topic, payload))
-            _, event_mid = client.publish(mqtt_topic, payload, qos=0)
 
-            message = template.format(device_id, 'event')
-            udpSerSock.sendto(message.encode('utf8'), client_addr)
-
-        elif action == 'attach':
-            print('Sending telemetry event for device {}'.format(device_id))
-            attach_topic = '/devices/{}/attach'.format(device_id)
-            auth = ''  # TODO:    auth = command["jwt"]
-            attach_payload = '{{"authorization" : "{}"}}'.format(auth)
-
-            print('Attaching device {}'.format(device_id))
-            print(attach_topic)
-            response, attach_mid = client.publish(
-                attach_topic, attach_payload, qos=1)
-
-            message = template.format(device_id, 'attach')
-            udpSerSock.sendto(message.encode('utf8'), client_addr)
-
-        elif action == 'detach':
-            detach_topic = '/devices/{}/detach'.format(device_id)
-            print(detach_topic)
-
-            res, mid = client.publish(detach_topic, "{}", qos=1)
-
-            message = template.format(res, mid)
-            print('sending data over UDP {} {}'.format(client_addr, message))
-            udpSerSock.sendto(message.encode('utf8'), client_addr)
-
-        elif action == "subscribe":
-            print('subscribe config for {}'.format(device_id))
-            subscribe_topic = '/devices/{}/config'.format(device_id)
-            skip_next_sub = True
-
-            _, mid = client.subscribe(subscribe_topic, qos=1)
-            message = template.format(device_id, 'subscribe')
-            gateway.subscriptions[subscribe_topic] = client_addr
-
-            udpSerSock.sendto(message.encode('utf8'), client_addr)
-
-        else:
-            print('undefined action: {}'.format(action))
-
-    print('Finished.')
 
 
 if __name__ == '__main__':
