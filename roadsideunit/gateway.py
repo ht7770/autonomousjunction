@@ -168,8 +168,6 @@ def main():
     # loop through the duration to keep the gateway running
     for i in range(1, duration):
         client.loop()
-        client.publish(gateway.mqtt_state_topic, 'Roadside unit active', qos=0)
-        time.sleep(1)
 
         if should_backoff:
             if minimum_backoff_time > MAXIMUM_BACKOFF_TIME:
