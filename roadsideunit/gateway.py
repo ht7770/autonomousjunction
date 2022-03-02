@@ -152,7 +152,7 @@ def createMQTT(projectID, cloudRegion, registryID, gatewayID, private_key_file, 
     client.connect(mqtt_bridge_hostname, mqtt_bridge_port)
 
 
-    client.publish(gateway.mqtt_telemetry_topic, 'Roadside Unit Started', qos=0)
+    client.publish(gateway.mqtt_state_topic, 'Roadside Unit Started', qos=0)
     return client
 
 
@@ -166,8 +166,12 @@ def main():
     client = createMQTT(projectID, cloudRegion, registryID, gatewayID, private_key_file, algorithm, certificateFile, gateway.mqtt_bridge_hostname, gateway.mqtt_bridge_port, JWTexpire)
 
     # loop through the duration to keep the gateway running
+
     for i in range(1, duration):
         client.loop()
+
+        if i % 10 == 0:
+            client.publish(gateway.mqtt_state_topic, "Roadside Unit Active", qos=0)
 
         if should_backoff:
             if minimum_backoff_time > MAXIMUM_BACKOFF_TIME:
