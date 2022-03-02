@@ -1,7 +1,6 @@
 import paho.mqtt.client as mqtt
 import jwt
 import json
-import socket
 import ssl
 import os
 import datetime
@@ -43,6 +42,8 @@ class Gateway:
     mqtt_error_topic = '/devices/{}/gatewayerrors'.format(gatewayID)
     mqtt_config_topic = '/devices/{}/gatewayconfig'.format(gatewayID)
     mqtt_command_topic = '/devices/{}/commands/#'.format(gatewayID)
+    mqtt_telemetry_topic = '/devices/{}/events'.format(gatewayID)
+    mqtt_state_topic = '/devices/{}/state'.format(gatewayID)
 
 gateway = Gateway()
 
@@ -133,10 +134,11 @@ def on_message(unused_client, unused_userdata, message):
 def createMQTT(projectID, cloudRegion, registryID, gatewayID, private_key_file, algorithm, certificateFile, mqtt_bridge_hostname, mqtt_bridge_port, JWTexpire):
 
 
+
     client = mqtt.Client(client_id=('projects/{}/locations/{}/registries/{}/devices/{}'.format(projectID, cloudRegion, registryID, gatewayID)))
 
     # Google cloud only takes values in the password field
-    client.username_pw_set(username='unused', password =createJWT(projectID, algorithm, private_key_file, JWTexpire))
+    client.username_pw_set(username='unused', password=createJWT(projectID, algorithm, private_key_file, JWTexpire))
     # Enable SSl/TLS
     client.tls_set(ca_certs=certificateFile, tls_version=ssl.PROTOCOL_TLSv1_2)
 
@@ -149,20 +151,25 @@ def createMQTT(projectID, cloudRegion, registryID, gatewayID, private_key_file, 
     # Connect to MQTT bridge using google hostname and recommended port
     client.connect(mqtt_bridge_hostname, mqtt_bridge_port)
 
-    mqtt_topic = '/devices/{}/events'.format(gatewayID)
-    client.publish(mqtt_topic, 'Roadside Unit Started', qos=0)
+
+    client.publish(gateway.mqtt_telemetry_topic, 'Roadside Unit Started', qos=0)
     return client
 
 
 def main():
     global gateway
 
+    # duration gateway is active for
     duration = 1000
 
+    # creating the client using variables provided at start of code
     client = createMQTT(projectID, cloudRegion, registryID, gatewayID, private_key_file, algorithm, certificateFile, gateway.mqtt_bridge_hostname, gateway.mqtt_bridge_port, JWTexpire)
 
+    # loop through the duration to keep the gateway running
     for i in range(1, duration):
         client.loop()
+        client.publish(gateway.mqtt_state_topic, 'Roadside unit active', qos=0)
+        time.sleep(1)
 
         if should_backoff:
             if minimum_backoff_time > MAXIMUM_BACKOFF_TIME:
