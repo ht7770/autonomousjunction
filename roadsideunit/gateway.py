@@ -199,12 +199,13 @@ def main():
             minimum_backoff_time *= 2
             client.connect(gateway.mqtt_bridge_hostname, gateway.mqtt_bridge_port)
 
-            clientMessage = UDPsocket.recv(bufferSize)
-            message = clientMessage[0]
-            clientAddress = clientMessage[1]
+            data, clientMessage = UDPsocket.recvfrom(bufferSize)
+            message = data.decode("utf-8")
+            clientAddress = clientMessage[0]
+            clientPort = clientMessage[1]
 
-            print(message)
-            print(clientAddress)
+            print('[{}]: From address {}:{} received: {} '.format(time.ctime(), clientAddress, clientPort, message))
+
 
 
 
