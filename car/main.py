@@ -53,6 +53,7 @@ def motor_test():
 def main():
     message = str.encode("Hello Server")
     UDPsocket.sendto(message, serverAddress)
+    print("message sent: {}".format(message))
 
 
 if __name__ == '__main__':
