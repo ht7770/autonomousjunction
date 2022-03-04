@@ -118,8 +118,6 @@ def on_disconnect(client, unused_userdata, rc):
     # Callback for when a device disconnects
     print('on_disconnect', error_str(rc))
     gateway.connected = False
-
-    gateway.connected = False
     if gateway.connected == False:
         print("Gateway Disconnected")
     #implement backoff
@@ -186,15 +184,18 @@ def main():
         client.loop()
 
         # Sends an update about the gateway state to google cloud every 10 seconds
-        if i % 10 == 0:
+        if (i % 10 == 0) and (gateway.connected == True):
             client.publish(gateway.mqtt_state_topic, "Roadside Unit Active", qos=0)
 
-        data, clientMessage = UDPsocket.recvfrom(bufferSize)
+        try:
+            data, clientMessage = UDPsocket.recvfrom(bufferSize)
+        except socket.error:
+            continue
         message = data.decode("utf-8")
         clientAddress = clientMessage[0]
         clientPort = clientMessage[1]
 
-        print('[{}]: From address {}:{} received: {} '.format(time.ctime(), clientAddress, clientPort, message))
+        print('[{}]: From address {}:{} received: {} '.format(datetime.datetime.utcnow(), clientAddress, clientPort, message))
 
         if should_backoff:
             if minimum_backoff_time > MAXIMUM_BACKOFF_TIME:
