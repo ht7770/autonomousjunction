@@ -189,6 +189,13 @@ def main():
         if i % 10 == 0:
             client.publish(gateway.mqtt_state_topic, "Roadside Unit Active", qos=0)
 
+        data, clientMessage = UDPsocket.recvfrom(bufferSize)
+        message = data.decode("utf-8")
+        clientAddress = clientMessage[0]
+        clientPort = clientMessage[1]
+
+        print('[{}]: From address {}:{} received: {} '.format(time.ctime(), clientAddress, clientPort, message))
+
         if should_backoff:
             if minimum_backoff_time > MAXIMUM_BACKOFF_TIME:
                 print("Exceeded max backoff time")
@@ -198,13 +205,6 @@ def main():
             time.sleep(delay)
             minimum_backoff_time *= 2
             client.connect(gateway.mqtt_bridge_hostname, gateway.mqtt_bridge_port)
-
-            data, clientMessage = UDPsocket.recvfrom(bufferSize)
-            message = data.decode("utf-8")
-            clientAddress = clientMessage[0]
-            clientPort = clientMessage[1]
-
-            print('[{}]: From address {}:{} received: {} '.format(time.ctime(), clientAddress, clientPort, message))
 
 
 
