@@ -45,7 +45,7 @@ private_key_file = 'rsa_private.pem'
 JWTexpire = 60
 
 
-# Command for killing python process on RPi when socket is still in use error occurs on program restart
+# Command for killing python process on RPi when socket is still in use when error occurs on program restart
 # kill -9 $(ps -A | grep python | awk '{print $1}')
 
 
@@ -146,8 +146,6 @@ def on_message(unused_client, unused_userdata, message):
 # Function that creates the MQTT client
 def createMQTT(projectID, cloudRegion, registryID, gatewayID, private_key_file, algorithm, certificateFile, mqtt_bridge_hostname, mqtt_bridge_port, JWTexpire):
 
-
-
     client = mqtt.Client(client_id=('projects/{}/locations/{}/registries/{}/devices/{}'.format(projectID, cloudRegion, registryID, gatewayID)))
 
     # Google cloud only takes values in the password field
@@ -168,6 +166,7 @@ def createMQTT(projectID, cloudRegion, registryID, gatewayID, private_key_file, 
     client.publish(gateway.mqtt_state_topic, 'Roadside Unit Started', qos=0)
     return client
 
+# UPD function that is used by the other thread, listens for messages on the UDP socket
 def UDPlistener():
     global message
     while True:
@@ -185,15 +184,17 @@ def main():
 
     # duration gateway is active for in seconds
     duration = 1000
+
     oldMessage = ''
 
     # creating the client using variables provided at start of code
     client = createMQTT(projectID, cloudRegion, registryID, gatewayID, private_key_file, algorithm, certificateFile, gateway.mqtt_bridge_hostname, gateway.mqtt_bridge_port, JWTexpire)
 
+    # Using multi threading so that the UDP can listen for messages in background while main is running
     _thread.start_new_thread(UDPlistener, ())
     print("Starting UDP listener...")
-    # loop through the duration to keep the gateway running
 
+    # loop through the duration to keep the gateway running
     for i in range(1, duration):
         client.loop()
 
