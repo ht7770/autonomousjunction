@@ -81,7 +81,6 @@ def createJWT(projectID, algorithm, private_key_file, JWTexpire):
     # console output so we can see JWT is being created
     print('JWT being created...')
     time.sleep(0.1)
-    print("...")
     JWT = jwt.encode(token, privateKey, algorithm=algorithm)
     print('JWT created!')
     return JWT

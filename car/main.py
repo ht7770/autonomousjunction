@@ -51,7 +51,7 @@ def motor_test():
 
 
 def main():
-    message = "Hello Server"
+    message = input("Enter a message to server: ")
     UDPsocket.sendto(message.encode(), serverAddress)
     print("message sent: {}".format(message))
 
