@@ -7,7 +7,7 @@ import os
 import datetime
 import time
 import random
-
+import _thread
 
 host = '192.168.1.154'
 port = 8888
@@ -169,6 +169,7 @@ def createMQTT(projectID, cloudRegion, registryID, gatewayID, private_key_file, 
     return client
 
 
+
 def main():
     global gateway
 
@@ -189,13 +190,12 @@ def main():
 
         try:
             data, clientMessage = UDPsocket.recvfrom(bufferSize)
+            message = data.decode("utf-8")
+            clientAddress = clientMessage[0]
+            clientPort = clientMessage[1]
+            print('[{}]: From address {}:{} received: {} '.format(datetime.datetime.utcnow(), clientAddress, clientPort, message))
         except socket.error:
             continue
-        message = data.decode("utf-8")
-        clientAddress = clientMessage[0]
-        clientPort = clientMessage[1]
-
-        print('[{}]: From address {}:{} received: {} '.format(datetime.datetime.utcnow(), clientAddress, clientPort, message))
 
         if should_backoff:
             if minimum_backoff_time > MAXIMUM_BACKOFF_TIME:
