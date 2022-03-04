@@ -186,6 +186,7 @@ def main():
 
     # duration gateway is active for in seconds
     duration = 1000
+    oldMessage = ''
 
     # creating the client using variables provided at start of code
     client = createMQTT(projectID, cloudRegion, registryID, gatewayID, private_key_file, algorithm, certificateFile, gateway.mqtt_bridge_hostname, gateway.mqtt_bridge_port, JWTexpire)
@@ -211,10 +212,7 @@ def main():
             minimum_backoff_time *= 2
             client.connect(gateway.mqtt_bridge_hostname, gateway.mqtt_bridge_port)
 
-        oldMessage = ''
-        if message == '':
-            continue
-        elif message == oldMessage:
+        if message == '' or message == oldMessage:
             continue
         else:
             print(message)
