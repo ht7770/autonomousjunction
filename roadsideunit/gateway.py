@@ -17,7 +17,7 @@ address = (host, port)
 # Create a UDP socket
 UDPsocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 UDPsocket.bind(address)
-print("Socket created on port: {}").format(port)
+print("Socket created on port: {}".format(port))
 
 
 
