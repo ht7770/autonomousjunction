@@ -190,15 +190,12 @@ def main():
     # creating the client using variables provided at start of code
     client = createMQTT(projectID, cloudRegion, registryID, gatewayID, private_key_file, algorithm, certificateFile, gateway.mqtt_bridge_hostname, gateway.mqtt_bridge_port, JWTexpire)
 
+    _thread.start_new_thread(UDPlistener, ())
+    print("Starting UDP listener...")
     # loop through the duration to keep the gateway running
 
     for i in range(1, duration):
         client.loop()
-
-
-        _thread.start_new_thread(UDPlistener, ())
-        print("Starting UDP listener...")
-
         if message:
             print(message)
         else:
