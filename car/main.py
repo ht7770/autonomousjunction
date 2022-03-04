@@ -1,7 +1,17 @@
 from Motor import *
 from Led import *
+import socket
 import time
 PWM=Motor()
+
+serverIP = '192.168.1.154'
+port = 8888
+bufferSize = 2048
+serverAddress = (serverIP, port)
+
+UDPsocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
+
 
 def motor_forward():
     PWM.setMotorModel(1000, 1000, 1000, 1000)
@@ -40,19 +50,13 @@ def motor_test():
 
 
 
-if __name__ == '__main__':
+def main():
+    message = str.encode("Hello Server")
+    UDPsocket.sendto(message, serverAddress)
 
-    print("Starting...")
-    import sys
-    if sys.argv[1] == 'forward':
-        motor_forward()
-    elif sys.argv[1] == 'backward':
-        motor_backward()
-    elif sys.argv[1] == 'left':
-        motor_left()
-    elif sys.argv[1] == 'right':
-        motor_right()
-    elif sys.argv[1] == 'test':
-        motor_test()
+
+if __name__ == '__main__':
+    main()
+
 
 
