@@ -1,11 +1,26 @@
 import paho.mqtt.client as mqtt
 import jwt
 import json
+import socket
 import ssl
 import os
 import datetime
 import time
 import random
+
+
+host = '192.168.1.154'
+port = 8888
+bufferSize = 2048
+address = (host, port)
+
+# Create a UDP socket
+UDPsocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+UDPsocket.bind(address)
+print("Socket created on port: {}").format(port)
+
+
+
 
 
 # The initial backoff time after a disconnection occurs, in seconds.
@@ -159,7 +174,7 @@ def createMQTT(projectID, cloudRegion, registryID, gatewayID, private_key_file, 
 def main():
     global gateway
 
-    # duration gateway is active for
+    # duration gateway is active for in seconds
     duration = 1000
 
     # creating the client using variables provided at start of code
@@ -170,6 +185,7 @@ def main():
     for i in range(1, duration):
         client.loop()
 
+        # Sends an update about the gateway state to google cloud every 10 seconds
         if i % 10 == 0:
             client.publish(gateway.mqtt_state_topic, "Roadside Unit Active", qos=0)
 
@@ -182,6 +198,16 @@ def main():
             time.sleep(delay)
             minimum_backoff_time *= 2
             client.connect(gateway.mqtt_bridge_hostname, gateway.mqtt_bridge_port)
+
+            clientMessage = UDPsocket.recv(bufferSize)
+            message = clientMessage[0]
+            clientAddress = clientMessage[1]
+
+            print(message)
+            print(clientAddress)
+
+
+
 
 
 
