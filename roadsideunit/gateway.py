@@ -168,6 +168,13 @@ def createMQTT(projectID, cloudRegion, registryID, gatewayID, private_key_file, 
     client.publish(gateway.mqtt_state_topic, 'Roadside Unit Started', qos=0)
     return client
 
+def UDPlistener():
+    data, clientMessage = UDPsocket.recvfrom(bufferSize)
+    message = data.decode("utf-8")
+    clientAddress = clientMessage[0]
+    clientPort = clientMessage[1]
+    print('[{}]: From address {}:{} received: {} '.format(datetime.datetime.utcnow(), clientAddress, clientPort, message))
+
 
 
 def main():
@@ -187,15 +194,6 @@ def main():
         # Sends an update about the gateway state to google cloud every 10 seconds
         if (i % 10 == 0) and (gateway.connected == True):
             client.publish(gateway.mqtt_state_topic, "Roadside Unit Active", qos=0)
-
-        try:
-            data, clientMessage = UDPsocket.recvfrom(bufferSize)
-            message = data.decode("utf-8")
-            clientAddress = clientMessage[0]
-            clientPort = clientMessage[1]
-            print('[{}]: From address {}:{} received: {} '.format(datetime.datetime.utcnow(), clientAddress, clientPort, message))
-        except socket.error:
-            continue
 
         if should_backoff:
             if minimum_backoff_time > MAXIMUM_BACKOFF_TIME:
