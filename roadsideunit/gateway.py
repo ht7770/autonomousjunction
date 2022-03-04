@@ -196,10 +196,15 @@ def main():
 
     for i in range(1, duration):
         client.loop()
-        if message:
-            print(message)
-        else:
+
+        oldMessage = ''
+        if message == '':
             continue
+        elif message == oldMessage:
+            continue
+        else:
+            print(message)
+            oldMessage = message
 
 
         # Sends an update about the gateway state to google cloud every 10 seconds
