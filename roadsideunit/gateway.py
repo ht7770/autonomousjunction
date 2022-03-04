@@ -197,16 +197,6 @@ def main():
     for i in range(1, duration):
         client.loop()
 
-        oldMessage = ''
-        if message == '':
-            continue
-        elif message == oldMessage:
-            continue
-        else:
-            print(message)
-            oldMessage = message
-
-
         # Sends an update about the gateway state to google cloud every 10 seconds
         if (i % 10 == 0) and (gateway.connected == True):
             client.publish(gateway.mqtt_state_topic, "Roadside Unit Active", qos=0)
@@ -220,6 +210,11 @@ def main():
             time.sleep(delay)
             minimum_backoff_time *= 2
             client.connect(gateway.mqtt_bridge_hostname, gateway.mqtt_bridge_port)
+
+        if message =='':
+            continue
+        else:
+            print(message)
 
 
 
