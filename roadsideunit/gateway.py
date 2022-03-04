@@ -195,14 +195,14 @@ def main():
     for i in range(1, duration):
         client.loop()
 
-        try:
-            _thread.start_new_thread(UDPlistener(), ())
-            print("Starting UDP listener...")
-        except:
-            print("Error: Could not start listener!")
+
+        _thread.start_new_thread(UDPlistener, ())
+        print("Starting UDP listener...")
 
         if message:
             print(message)
+        else:
+            continue
 
 
         # Sends an update about the gateway state to google cloud every 10 seconds
