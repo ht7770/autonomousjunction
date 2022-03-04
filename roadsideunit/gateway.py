@@ -211,10 +211,14 @@ def main():
             minimum_backoff_time *= 2
             client.connect(gateway.mqtt_bridge_hostname, gateway.mqtt_bridge_port)
 
-        if message =='':
+        oldMessage = ''
+        if message == '':
+            continue
+        elif message == oldMessage:
             continue
         else:
             print(message)
+            oldMessage = message
 
 
 
