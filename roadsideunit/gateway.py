@@ -13,6 +13,7 @@ host = '192.168.1.154'
 port = 8888
 bufferSize = 2048
 address = (host, port)
+message = ''
 
 # Create a UDP socket
 UDPsocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -169,16 +170,19 @@ def createMQTT(projectID, cloudRegion, registryID, gatewayID, private_key_file, 
     return client
 
 def UDPlistener():
-    data, clientMessage = UDPsocket.recvfrom(bufferSize)
-    message = data.decode("utf-8")
-    clientAddress = clientMessage[0]
-    clientPort = clientMessage[1]
-    print('[{}]: From address {}:{} received: {} '.format(datetime.datetime.utcnow(), clientAddress, clientPort, message))
+    global message
+    while True:
+        data, clientMessage = UDPsocket.recvfrom(bufferSize)
+        message = data.decode("utf-8")
+        clientAddress = clientMessage[0]
+        clientPort = clientMessage[1]
+        fomatted_message = '[{}]: From address {}:{} received: {} '.format(datetime.datetime.utcnow(), clientAddress, clientPort, message)
 
 
 
 def main():
     global gateway
+    global message
 
     # duration gateway is active for in seconds
     duration = 1000
@@ -190,6 +194,16 @@ def main():
 
     for i in range(1, duration):
         client.loop()
+
+        try:
+            _thread.start_new_thread(UDPlistener(), ())
+            print("Starting UDP listener...")
+        except:
+            print("Error: Could not start listener!")
+
+        if message:
+            print(message)
+
 
         # Sends an update about the gateway state to google cloud every 10 seconds
         if (i % 10 == 0) and (gateway.connected == True):
