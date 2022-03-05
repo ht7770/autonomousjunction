@@ -14,7 +14,7 @@ clientIP = '192.168.1.156'
 port = 8888
 bufferSize = 2048
 address = (hostIP, port)
-message = ''
+command = ''
 
 
 
@@ -171,14 +171,11 @@ def createMQTT(projectID, cloudRegion, registryID, gatewayID, private_key_file, 
 
 # UPD function that is used by the other thread, listens for messages on the UDP socket
 def UDPlistener():
-    global message
+    global command
     while True:
         data, clientMessage = UDPsocket.recvfrom(bufferSize)
         command = json.loads(data.decode("utf-8"))
-        action = command["action"]
-        deviceID = command["device"]
 
-        print(command)
 
 
 
@@ -187,7 +184,7 @@ def UDPlistener():
 
 def main():
     global gateway
-    global message
+    global command
 
     # duration gateway is active for in seconds
     duration = 1000
@@ -217,6 +214,22 @@ def main():
             time.sleep(delay)
             minimum_backoff_time *= 2
             client.connect(gateway.mqtt_bridge_hostname, gateway.mqtt_bridge_port)
+
+        if command == '' or command == oldMessage:
+            continue
+        elif command['action'] == 'subscribe':
+            deviceTopic = '/devices/{}/events'.format(command['device'])
+            print("Subscribing {} to topic {}".format(command['device'], deviceTopic))
+            client.subscribe(deviceTopic, qos=1)
+            oldMessage = command
+        elif command['action'] == 'event':
+            deviceTopic = '/devices/{}/events'.format(command['device'])
+            payload == command['data']
+            client.publish(deviceTopic, payload, qos=0)
+            oldMessage = command
+        else:
+            print("Undefined action!")
+
 
 
 
