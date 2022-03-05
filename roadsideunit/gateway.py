@@ -13,7 +13,7 @@ hostIP = '192.168.1.154'
 clientIP = '192.168.1.156'
 port = 8888
 bufferSize = 2048
-address = (host, port)
+address = (hostIP, port)
 message = ''
 
 
