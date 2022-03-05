@@ -230,7 +230,7 @@ def main():
             oldMessage = command
         elif command['action'] == 'attach':
             attach_topic = '/devices/{}/attach'.format(command['device'])
-            mqtt_topic = '/devices/{}/events'.format(command['device'])
+            mqtt_topic = '/devices/{}/devicetelem'.format(command['device'])
             auth = ''
             attach_payload = '{{"authorization" : "{}"}}'.format(auth)
             client.publish(attach_topic, attach_payload, qos=1)
