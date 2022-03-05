@@ -218,7 +218,7 @@ def main():
             client.connect(gateway.mqtt_bridge_hostname, gateway.mqtt_bridge_port)
 
 
-        if command == '':
+        if command == '' or command == oldMessage:
             continue
         elif command['action'] == 'subscribe':
             deviceEventTopic = '/devices/{}/events'.format(command['device'])
@@ -227,11 +227,11 @@ def main():
             client.subscribe(deviceEventTopic, qos=1)
             print("Subscribing {} to topic {}".format(command['device'], deviceConfigTopic))
             client.subscribe(deviceConfigTopic, qos=1)
-            command = ''
+            oldMessage = command
         elif command['action'] == 'event':
             deviceTopic = '/devices/{}/events'.format(command['device'])
             client.publish(deviceTopic, command['data'], qos=0)
-            command = ''
+            oldMessage = command
         else:
             print("Undefined action!")
 
