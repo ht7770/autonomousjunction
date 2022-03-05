@@ -236,9 +236,6 @@ def main():
             attach_payload = '{{"authorization" : "{}"}}'.format(auth)
             client.publish(attach_topic, attach_payload, qos=1)
             oldMessage = command
-
-
-
         else:
             print("Undefined action!")
 

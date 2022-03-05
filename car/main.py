@@ -90,10 +90,13 @@ def main():
 
     message = MakeMessage(deviceID, 'attach')
     sendCommand(message)
+    time.sleep(1)
     message = MakeMessage(deviceID, 'subscribe')
     sendCommand(message)
+    time.sleep(1)
     message = MakeMessage(deviceID, 'event', move)
     sendCommand(message)
+    time.sleep(1)
 
 
 
