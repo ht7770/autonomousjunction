@@ -233,8 +233,8 @@ def main():
             mqtt_topic = '/devices/{}/events'.format(command['device'])
             auth = ''
             attach_payload = '{{"authorization" : "{}"}}'.format(auth)
-            client.publish(attach_topic, attach_payload, qos=1)
-            client.publish(mqtt_topic, command['data'], qos=0)
+            repsonse, attach_mid = client.publish(attach_topic, attach_payload, qos=1)
+            _, event_mid = client.publish(mqtt_topic, command['data'], qos=0)
             oldMessage = command
 
 
