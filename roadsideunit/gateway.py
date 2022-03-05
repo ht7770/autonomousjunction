@@ -221,20 +221,22 @@ def main():
         if command == '' or command == oldMessage:
             continue
         elif command['action'] == 'subscribe':
-            deviceEventTopic = '/devices/{}/events'.format(command['device'])
-            deviceConfigTopic = '/devices/{}/config'.format(command['device'])
-            deviceStateTopic = '/devices/{}/state'.format(command['device'])
-            print("Subscribing {} to topic {}".format(command['device'], deviceEventTopic))
-            client.subscribe(deviceEventTopic, qos=1)
-            print("Subscribing {} to topic {}".format(command['device'], deviceConfigTopic))
-            client.subscribe(deviceConfigTopic, qos=1)
-            client.subscribe(deviceStateTopic, qos=1)
-            client.publish(deviceStateTopic, command['data'], qos=0)
+            devicetelem = '/devices/{}/devicetelem'.format(command['device'])
+            client.subscribe(devicetelem, qos=1)
+            time.sleep(0.1)
+            client.publish(devicetelem, command['data'], qos=1)
             oldMessage = command
         elif command['action'] == 'event':
             deviceTopic = '/devices/{}/events'.format(command['device'])
             client.publish(deviceTopic, command['data'], qos=0)
             oldMessage = command
+        elif command['action'] == 'attach':
+            attach_topic = '/devices/{}/attach'.format(command['device'])
+            auth = ''
+            attach_payload = '{{"authorization" : "{}"}}'.format(auth)
+            client.publish(attach_topic, attach_payload, qos=1)
+
+
         else:
             print("Undefined action!")
 
