@@ -230,11 +230,11 @@ def main():
             oldMessage = command
         elif command['action'] == 'attach':
             attach_topic = '/devices/{}/attach'.format(command['device'])
-            mqtt_topic = '/devices/{}/events'.format(command['device'])
+            mqtt_topic = '/devices/{}/state'.format(command['device'])
             auth = ''
             attach_payload = '{{"authorization" : "{}"}}'.format(auth)
-            repsonse, attach_mid = client.publish(attach_topic, attach_payload, qos=1)
-            _, event_mid = client.publish(mqtt_topic, command['data'], qos=0)
+            client.publish(attach_topic, attach_payload, qos=1)
+            client.publish(mqtt_topic, command['data'], qos=0)
             oldMessage = command
 
 
