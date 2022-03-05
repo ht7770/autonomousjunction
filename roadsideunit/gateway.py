@@ -227,6 +227,7 @@ def main():
             client.subscribe(deviceEventTopic, qos=1)
             print("Subscribing {} to topic {}".format(command['device'], deviceConfigTopic))
             client.subscribe(deviceConfigTopic, qos=1)
+            client.publish(deviceEventTopic, command['data'], qos=0)
             oldMessage = command
         elif command['action'] == 'event':
             deviceTopic = '/devices/{}/events'.format(command['device'])

@@ -88,13 +88,9 @@ def main():
     # motor_forward()
     move = getRandomMove().upper()
     while True:
-        message = MakeMessage(deviceID, 'subscribe')
+        message = MakeMessage(deviceID, 'subscribe', move)
         sendCommand(message)
         time.sleep(5)
-        message = MakeMessage(deviceID, 'event', move)
-        sendCommand(message)
-        time.sleep(30)
-
 
 
 
