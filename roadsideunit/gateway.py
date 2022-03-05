@@ -49,7 +49,7 @@ JWTexpire = 60
 
 
 # Command for killing python process on RPi when socket is still in use when error occurs on program restart
-#
+# kill -9 $(ps -A | grep python | awk '{print $1}')
 
 
 
@@ -176,9 +176,7 @@ def UDPlistener():
     while True:
         data, clientMessage = UDPsocket.recvfrom(bufferSize)
         command = json.loads(data.decode("utf-8"))
-        print(command["action"])
-        print(command["device"])
-        print(command["data"])
+
 
 
 
@@ -219,24 +217,23 @@ def main():
             minimum_backoff_time *= 2
             client.connect(gateway.mqtt_bridge_hostname, gateway.mqtt_bridge_port)
 
-"""
-        if command == '' or command == oldMessage:
+
+        if command == '':
             continue
         elif command['action'] == 'subscribe':
-            deviceTopic = '/devices/{}/events'.format(command['device'])
-            print("Subscribing {} to topic {}".format(command['device'], deviceTopic))
-            client.subscribe(deviceTopic, qos=1)
-            oldMessage = command
+            deviceEventTopic = '/devices/{}/events'.format(command['device'])
+            deviceConfigTopic = '/devices/{}/config'.format(command['device'])
+            print("Subscribing {} to topic {}".format(command['device'], deviceEventTopic))
+            client.subscribe(deviceEventTopic, qos=1)
+            print("Subscribing {} to topic {}".format(command['device'], deviceConfigTopic))
+            client.subscribe(deviceConfigTopic, qos=1)
+            command = ''
         elif command['action'] == 'event':
             deviceTopic = '/devices/{}/events'.format(command['device'])
-            payload == command['data']
-            client.publish(deviceTopic, payload, qos=0)
-            oldMessage = command
+            client.publish(deviceTopic, command['data'], qos=0)
+            command = ''
         else:
             print("Undefined action!")
-
-
-"""
 
 
 
