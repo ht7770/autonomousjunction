@@ -49,7 +49,8 @@ JWTexpire = 60
 
 
 # Command for killing python process on RPi when socket is still in use when error occurs on program restart
-# kill -9 $(ps -A | grep python | awk '{print $1}')
+#
+
 
 
 # Gateway class to store details about the gateway
@@ -175,6 +176,9 @@ def UDPlistener():
     while True:
         data, clientMessage = UDPsocket.recvfrom(bufferSize)
         command = json.loads(data.decode("utf-8"))
+        print(command["action"])
+        print(command["device"])
+        print(command["data"])
 
 
 
@@ -215,6 +219,7 @@ def main():
             minimum_backoff_time *= 2
             client.connect(gateway.mqtt_bridge_hostname, gateway.mqtt_bridge_port)
 
+"""
         if command == '' or command == oldMessage:
             continue
         elif command['action'] == 'subscribe':
@@ -231,7 +236,7 @@ def main():
             print("Undefined action!")
 
 
-
+"""
 
 
 
