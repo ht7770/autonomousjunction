@@ -221,10 +221,8 @@ def main():
         if command == '' or command == oldMessage:
             continue
         elif command['action'] == 'subscribe':
-            devicetelem = '/devices/{}/devicetelem'.format(command['device'])
-            client.subscribe(devicetelem, qos=1)
-            time.sleep(0.1)
-            client.publish(devicetelem, command['data'], qos=1)
+            deviceConfig = '/devices/{}/config'.format(command['device'])
+            client.subscribe(deviceConfig, qos=1)
             oldMessage = command
         elif command['action'] == 'event':
             deviceTopic = '/devices/{}/events'.format(command['device'])
@@ -232,9 +230,13 @@ def main():
             oldMessage = command
         elif command['action'] == 'attach':
             attach_topic = '/devices/{}/attach'.format(command['device'])
+            mqtt_topic = '/devices/{}/events'.format(command['device'])
             auth = ''
             attach_payload = '{{"authorization" : "{}"}}'.format(auth)
             client.publish(attach_topic, attach_payload, qos=1)
+            client.publish(mqtt_topic, command['data'], qos=0)
+            oldMessage = command
+
 
 
         else:
