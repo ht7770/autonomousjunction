@@ -87,10 +87,9 @@ def RunAction(action):
 def main():
     # motor_forward()
     move = getRandomMove().upper()
-    while True:
-        message = MakeMessage(deviceID, 'attach', move)
-        sendCommand(message)
-        time.sleep(5)
+
+    message = MakeMessage(deviceID, 'attach', move)
+    sendCommand(message)
 
 
 
