@@ -223,11 +223,13 @@ def main():
         elif command['action'] == 'subscribe':
             deviceEventTopic = '/devices/{}/events'.format(command['device'])
             deviceConfigTopic = '/devices/{}/config'.format(command['device'])
+            deviceStateTopic = '/devices/{}/state'.format(command['device'])
             print("Subscribing {} to topic {}".format(command['device'], deviceEventTopic))
             client.subscribe(deviceEventTopic, qos=1)
             print("Subscribing {} to topic {}".format(command['device'], deviceConfigTopic))
             client.subscribe(deviceConfigTopic, qos=1)
-            client.publish(deviceEventTopic, command['data'], qos=0)
+            client.subscribe(deviceStateTopic, qos=1)
+            client.publish(deviceStateTopic, command['data'], qos=0)
             oldMessage = command
         elif command['action'] == 'event':
             deviceTopic = '/devices/{}/events'.format(command['device'])
