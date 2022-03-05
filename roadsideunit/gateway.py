@@ -9,7 +9,8 @@ import time
 import random
 import _thread
 
-host = '192.168.1.154'
+hostIP = '192.168.1.154'
+clientIP = '192.168.1.156'
 port = 8888
 bufferSize = 2048
 address = (host, port)
@@ -173,10 +174,14 @@ def UDPlistener():
     global message
     while True:
         data, clientMessage = UDPsocket.recvfrom(bufferSize)
-        message = data.decode("utf-8")
-        clientAddress = clientMessage[0]
-        clientPort = clientMessage[1]
-        fomatted_message = '[{}]: From address {}:{} received: {} '.format(datetime.datetime.utcnow(), clientAddress, clientPort, message)
+        command = json.loads(data.decode("utf-8"))
+        action = command["action"]
+        deviceID = command["device"]
+
+        print(command)
+
+
+
 
 
 
@@ -213,11 +218,9 @@ def main():
             minimum_backoff_time *= 2
             client.connect(gateway.mqtt_bridge_hostname, gateway.mqtt_bridge_port)
 
-        if message == '' or message == oldMessage:
-            continue
-        else:
-            print(message)
-            oldMessage = message
+
+
+
 
 
 

@@ -7,14 +7,16 @@ import _thread
 PWM=Motor()
 
 serverIP = '192.168.1.154'
+hostIP = '192.168.1.156'
 port = 8888
 bufferSize = 2048
 serverAddress = (serverIP, port)
 
 UDPsocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
-possibleTurns = ["right", "left", "forward"]
 
+possibleTurns = ["right", "left", "forward"]
+deviceID = "car1"
 
 
 
@@ -60,15 +62,40 @@ def getRandomMove():
     print("Vehicle wants to turn: {}".format(choice))
     return choice
 
+def UDPlistener():
+    global message
+    while True:
+        data, clientMessage = UDPsocket.recvfrom(bufferSize)
+        message = data.decode("utf-8")
+        clientAddress = clientMessage[0]
+        clientPort = clientMessage[1]
 
+def MakeMessage(deviceID, action, data=''):
+    if data:
+        return '{{ "device" : "{}", "action":"{}", "data" : "{}" }}'.format(
+            deviceID, action, data)
+    else:
+        return '{{ "device" : "{}", "action":"{}" }}'.format(deviceID, action)
 
+def sendCommand(message):
+    UDPsocket.sendto(message.encode('utf8'), serverAddress)
 
+def RunAction(action):
+    message = MakeMessage(deviceID, action)
+    sendCommand(message)
 
 def main():
+    # motor_forward()
+    move = getRandomMove().upper()
 
-    message = input("Enter a message to server: ")
-    UDPsocket.sendto(message.encode(), serverAddress)
-    print("message sent: {}".format(message))
+    while True:
+        message = MakeMessage(deviceID, 'event', move)
+        sendCommand(message)
+        time.sleep(5)
+
+
+
+
 
 
 if __name__ == '__main__':
