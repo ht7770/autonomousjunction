@@ -222,20 +222,19 @@ def main():
             continue
         elif command['action'] == 'subscribe':
             deviceConfig = '/devices/{}/config'.format(command['device'])
+            deviceEvents = 'devices/{}/events'.format(command['device'])
             client.subscribe(deviceConfig, qos=1)
+            client.subscribe(deviceEvents, qos=1)
             oldMessage = command
         elif command['action'] == 'event':
-            deviceTopic = '/devices/{}/state'.format(command['device'])
-            client.publish(deviceTopic, command['data'], qos=0)
+            deviceEvents = '/devices/{}/events'.format(command['device'])
+            client.publish(deviceEvents, command['data'], qos=0)
             oldMessage = command
         elif command['action'] == 'attach':
             attach_topic = '/devices/{}/attach'.format(command['device'])
-            mqtt_topic = 'devices/{}/device-telemetry'.format(command['device'])
             auth = ''
             attach_payload = '{{"authorization" : "{}"}}'.format(auth)
             client.publish(attach_topic, attach_payload, qos=1)
-            client.subscribe(mqtt_topic, qos=1)
-            client.publish(mqtt_topic, command['data'], qos=0)
             oldMessage = command
 
 

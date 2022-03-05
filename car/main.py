@@ -88,7 +88,11 @@ def main():
     # motor_forward()
     move = getRandomMove().upper()
 
-    message = MakeMessage(deviceID, 'attach', move)
+    message = MakeMessage(deviceID, 'attach')
+    sendCommand(message)
+    message = MakeMessage(deviceID, 'subscribe')
+    sendCommand(message)
+    message = MakeMessage(deviceID, 'event', move)
     sendCommand(message)
 
 
