@@ -2,6 +2,8 @@ from Motor import *
 import socket
 import time
 import os
+import random
+import _thread
 PWM=Motor()
 
 serverIP = '192.168.1.154'
@@ -10,6 +12,10 @@ bufferSize = 2048
 serverAddress = (serverIP, port)
 
 UDPsocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
+possibleTurns = ["right", "left", "forward"]
+
+
 
 
 
@@ -48,9 +54,18 @@ def motor_test():
     time.sleep(usertime)
     PWM.setMotorModel(0,0,0,0)
 
+def getRandomMove():
+    global possibleTurns
+    choice = random.choice(possibleTurns)
+    print("Vehicle wants to turn: {}".format(choice))
+    return choice
+
+
+
 
 
 def main():
+
     message = input("Enter a message to server: ")
     UDPsocket.sendto(message.encode(), serverAddress)
     print("message sent: {}".format(message))

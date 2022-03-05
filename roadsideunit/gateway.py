@@ -15,6 +15,8 @@ bufferSize = 2048
 address = (host, port)
 message = ''
 
+
+
 # Create a UDP socket
 UDPsocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 UDPsocket.bind(address)
@@ -201,7 +203,6 @@ def main():
         # Sends an update about the gateway state to google cloud every 10 seconds
         if (i % 10 == 0) and (gateway.connected == True):
             client.publish(gateway.mqtt_state_topic, "Roadside Unit Active", qos=0)
-
         if should_backoff:
             if minimum_backoff_time > MAXIMUM_BACKOFF_TIME:
                 print("Exceeded max backoff time")
