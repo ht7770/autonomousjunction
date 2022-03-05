@@ -225,12 +225,12 @@ def main():
             client.subscribe(deviceConfig, qos=1)
             oldMessage = command
         elif command['action'] == 'event':
-            deviceTopic = '/devices/{}/events'.format(command['device'])
+            deviceTopic = '/devices/{}/state'.format(command['device'])
             client.publish(deviceTopic, command['data'], qos=0)
             oldMessage = command
         elif command['action'] == 'attach':
             attach_topic = '/devices/{}/attach'.format(command['device'])
-            mqtt_topic = '/devices/{}/state'.format(command['device'])
+            mqtt_topic = '/devices/{}/events'.format(command['device'])
             auth = ''
             attach_payload = '{{"authorization" : "{}"}}'.format(auth)
             client.publish(attach_topic, attach_payload, qos=1)
