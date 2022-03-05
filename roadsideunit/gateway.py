@@ -234,6 +234,7 @@ def main():
             auth = ''
             attach_payload = '{{"authorization" : "{}"}}'.format(auth)
             client.publish(attach_topic, attach_payload, qos=1)
+            client.subscribe(mqtt_topic, qos=1)
             client.publish(mqtt_topic, command['data'], qos=0)
             oldMessage = command
 
