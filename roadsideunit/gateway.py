@@ -59,8 +59,8 @@ class Gateway:
     connected = False
     mqtt_bridge_hostname = 'mqtt.googleapis.com'
     mqtt_bridge_port = 8883
-    mqtt_error_topic = '/devices/{}/gatewayerrors'.format(gatewayID)
-    mqtt_config_topic = '/devices/{}/gatewayconfig'.format(gatewayID)
+    mqtt_error_topic = '/devices/{}/errors'.format(gatewayID)
+    mqtt_config_topic = '/devices/{}/config'.format(gatewayID)
     mqtt_command_topic = '/devices/{}/commands/#'.format(gatewayID)
     mqtt_telemetry_topic = '/devices/{}/events'.format(gatewayID)
     mqtt_state_topic = '/devices/{}/state'.format(gatewayID)
@@ -154,6 +154,7 @@ def createMQTT(projectID, cloudRegion, registryID, gatewayID, private_key_file, 
 
     # Google cloud only takes values in the password field
     client.username_pw_set(username='unused', password=createJWT(projectID, algorithm, private_key_file, JWTexpire))
+
     # Enable SSl/TLS
     client.tls_set(ca_certs=certificateFile, tls_version=ssl.PROTOCOL_TLSv1_2)
 
@@ -188,7 +189,7 @@ def main():
     global gateway
     global command
 
-    # duration gateway is active for in seconds
+    # Amount of times looped to determine how long gateway stays active
     duration = 1000
 
     oldMessage = ''
@@ -207,6 +208,8 @@ def main():
         # Sends an update about the gateway state to google cloud every 10 seconds
         if (i % 10 == 0) and (gateway.connected == True):
             client.publish(gateway.mqtt_state_topic, "Roadside Unit Active", qos=0)
+
+
         if should_backoff:
             if minimum_backoff_time > MAXIMUM_BACKOFF_TIME:
                 print("Exceeded max backoff time")

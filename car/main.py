@@ -15,10 +15,9 @@ serverAddress = (serverIP, port)
 UDPsocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
 
+
 possibleTurns = ["right", "left", "forward"]
 deviceID = "car1"
-
-
 
 
 def motor_forward():
