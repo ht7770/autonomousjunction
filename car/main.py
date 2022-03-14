@@ -111,6 +111,8 @@ def main():
         else:
             time.sleep(1)
 
+    print("Maneuver Complete")
+
 
 
 
