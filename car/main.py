@@ -11,8 +11,11 @@ hostIP = '192.168.1.158'
 port = 8888
 bufferSize = 2048
 serverAddress = (serverIP, port)
+hostAddress = (hostIP, port)
 
 UDPsocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+UDPsocket.bind(hostAddress)
+
 
 
 
