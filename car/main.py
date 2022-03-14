@@ -83,6 +83,7 @@ def RunAction(action):
     sendCommand(message)
 
 def main():
+
     motor_forward()
     move = getRandomMove().upper()
 
@@ -126,8 +127,9 @@ def main():
 
 
 
+
 if __name__ == '__main__':
-    main()
+    motor_test()
 
 
 
