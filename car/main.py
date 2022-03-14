@@ -97,15 +97,15 @@ def main():
     time.sleep(1)
     while True:
         data, clientMessage = UDPsocket.recvfrom(bufferSize)
-        message = data.decode("utf-8")
+        message = data.decode("utf-8").upper()
 
         if message == "APPROVED":
             print("Action approved, car is moving...")
-            if move == 'right':
+            if move == 'RIGHT':
                 motor_right()
-            elif move == 'left':
+            elif move == 'LEFT':
                 motor_left()
-            elif move == 'forward':
+            elif move == 'FORWARD':
                 motor_forward()
             break
         else:
