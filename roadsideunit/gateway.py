@@ -183,7 +183,7 @@ def createMQTT(projectID, cloudRegion, registryID, gatewayID, private_key_file, 
 def UDPlistener():
     global command
     while True:
-        data, clientMessage = UDPsocket.recvfrom(bufferSize)
+        data, clientAddress = UDPsocket.recvfrom(bufferSize)
         command = json.loads(data.decode("utf-8"))
 
 
