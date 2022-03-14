@@ -10,7 +10,7 @@ import random
 import _thread
 
 hostIP = '192.168.1.154'
-clientIP = '192.168.1.156'
+clientIP = '192.168.1.158'
 port = 8888
 bufferSize = 2048
 clientAddress = (clientIP, port)
@@ -147,12 +147,8 @@ def on_message(unused_client, unused_userdata, message):
         print("Message received for connected vehicle: {}.".format(payload))
         sendToCar(payload)
 
-
-    print(
-        "Received message '{}' on topic '{}' with Qos {}".format(
-            payload, message.topic, str(message.qos)
-        )
-    )
+    else:
+        print("Received message '{}' on topic '{}' with Qos {}".format(payload, message.topic, str(message.qos)))
 
 
 def sendToCar(message):

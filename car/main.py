@@ -7,7 +7,7 @@ import _thread
 PWM=Motor()
 
 serverIP = '192.168.1.154'
-hostIP = '192.168.1.156'
+hostIP = '192.168.1.158'
 port = 8888
 bufferSize = 2048
 serverAddress = (serverIP, port)
@@ -96,7 +96,7 @@ def main():
     sendCommand(message)
     time.sleep(1)
     while True:
-        data, clientMessage = UDPsocket.recvfrom(bufferSize)
+        data = UDPsocket.recvfrom(bufferSize)
         message = data.decode("utf-8").upper()
 
         if message == "AUTHORISED":
