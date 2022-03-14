@@ -66,8 +66,7 @@ def UDPlistener():
     while True:
         data, clientMessage = UDPsocket.recvfrom(bufferSize)
         message = data.decode("utf-8")
-        clientAddress = clientMessage[0]
-        clientPort = clientMessage[1]
+
 
 def MakeMessage(deviceID, action, data=''):
     if data:
@@ -84,7 +83,7 @@ def RunAction(action):
     sendCommand(message)
 
 def main():
-    # motor_forward()
+    motor_forward()
     move = getRandomMove().upper()
 
     message = MakeMessage(deviceID, 'attach')
@@ -96,6 +95,24 @@ def main():
     message = MakeMessage(deviceID, 'event', move)
     sendCommand(message)
     time.sleep(1)
+    while True:
+        data, clientMessage = UDPsocket.recvfrom(bufferSize)
+        message = data.decode("utf-8")
+
+        if message == "APPROVED":
+            print("Action approved, car is moving...")
+            if move == 'right':
+                motor_right()
+            elif move == 'left':
+                motor_left()
+            elif move == 'forward':
+                motor_forward()
+        else:
+            time.sleep(1)
+
+
+
+
 
 
 

@@ -13,6 +13,7 @@ hostIP = '192.168.1.154'
 clientIP = '192.168.1.156'
 port = 8888
 bufferSize = 2048
+clientAddress = (clientIP, port)
 address = (hostIP, port)
 command = ''
 
@@ -141,11 +142,22 @@ def on_subscribe(unused_client, unused_userdata, mid, granted_qos):
 
 def on_message(unused_client, unused_userdata, message):
     payload = str(message.payload.decode("utf-8"))
+
+    if message.topic == '/devices/car1/config':
+        print("Message recieved for connected vehicle: {}.".format(payload))
+        sendToCar(payload)
+
+
     print(
         "Received message '{}' on topic '{}' with Qos {}".format(
             payload, message.topic, str(message.qos)
         )
     )
+
+
+def sendToCar(message):
+    UDPsocket.sendto(message.encode('utf8'), clientAddress)
+
 
 # Function that creates the MQTT client
 def createMQTT(projectID, cloudRegion, registryID, gatewayID, private_key_file, algorithm, certificateFile, mqtt_bridge_hostname, mqtt_bridge_port, JWTexpire):
@@ -177,11 +189,6 @@ def UDPlistener():
     while True:
         data, clientMessage = UDPsocket.recvfrom(bufferSize)
         command = json.loads(data.decode("utf-8"))
-
-
-
-
-
 
 
 
@@ -226,8 +233,10 @@ def main():
         elif command['action'] == 'subscribe':
             deviceConfig = '/devices/{}/config'.format(command['device'])
             deviceEvents = 'devices/{}/events'.format(command['device'])
+            deviceCommands = '/devices/{}/commands/#'.format(command['device'])
             client.subscribe(deviceConfig, qos=1)
             client.subscribe(deviceEvents, qos=1)
+            client.subscribe(deviceCommands, qos=1)
             oldMessage = command
         elif command['action'] == 'event':
             deviceEvents = '/devices/{}/events'.format(command['device'])
