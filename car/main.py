@@ -107,8 +107,11 @@ def main():
                 motor_left()
             elif move == 'forward':
                 motor_forward()
+            break
         else:
             time.sleep(1)
+
+
 
 
 
