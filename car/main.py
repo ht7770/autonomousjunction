@@ -99,7 +99,7 @@ def main():
         data, clientMessage = UDPsocket.recvfrom(bufferSize)
         message = data.decode("utf-8").upper()
 
-        if message == "APPROVED":
+        if message == "AUTHORISED":
             print("Action approved, car is moving...")
             if move == 'RIGHT':
                 motor_right()
@@ -108,6 +108,9 @@ def main():
             elif move == 'FORWARD':
                 motor_forward()
             break
+        elif message == "UNAUTHORISED":
+            print("Maneuver is not allowed, sleeping for 3 seconds...")
+            time.sleep(3)
         else:
             time.sleep(1)
 
