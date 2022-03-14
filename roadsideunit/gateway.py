@@ -59,8 +59,8 @@ class Gateway:
     connected = False
     mqtt_bridge_hostname = 'mqtt.googleapis.com'
     mqtt_bridge_port = 8883
-    mqtt_error_topic = '/devices/{}/errors'.format(gatewayID)
-    mqtt_config_topic = '/devices/{}/config'.format(gatewayID)
+    mqtt_error_topic = '/devices/{}/gatewayerrors'.format(gatewayID)
+    mqtt_config_topic = '/devices/{}/gatewayconfig'.format(gatewayID)
     mqtt_command_topic = '/devices/{}/commands/#'.format(gatewayID)
     mqtt_telemetry_topic = '/devices/{}/events'.format(gatewayID)
     mqtt_state_topic = '/devices/{}/state'.format(gatewayID)
