@@ -97,7 +97,7 @@ def main():
     sendCommand(message)
     time.sleep(1)
     while True:
-        data, dataAddress = UDPsocket.recvfrom(bufferSize)
+        data = UDPsocket.recvfrom(100000)
         message = data.decode("utf-8").upper()
         print(message)
         time.sleep(1)
