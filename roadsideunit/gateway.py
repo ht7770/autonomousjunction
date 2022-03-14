@@ -143,8 +143,8 @@ def on_subscribe(unused_client, unused_userdata, mid, granted_qos):
 def on_message(unused_client, unused_userdata, message):
     payload = str(message.payload.decode("utf-8"))
 
-    if message.topic == '/devices/car1/config':
-        print("Message recieved for connected vehicle: {}.".format(payload))
+    if message.topic == '/devices/car1/commands':
+        print("Message received for connected vehicle: {}.".format(payload))
         sendToCar(payload)
 
 
