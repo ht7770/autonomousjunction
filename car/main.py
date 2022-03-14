@@ -129,7 +129,7 @@ def main():
 
 
 if __name__ == '__main__':
-    motor_test()
+    main()
 
 
 
