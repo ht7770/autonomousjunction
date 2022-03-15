@@ -143,14 +143,14 @@ def on_subscribe(unused_client, unused_userdata, mid, granted_qos):
 def on_message(unused_client, unused_userdata, message):
     payload = str(message.payload.decode("utf-8"))
 
-    if message.topic == '/devices/car1/commands':
+    if message.topic == '/devices/{}/commands'.format(deviceID):
         print("Message received for connected vehicle: {}.".format(payload))
         sendToCar(payload)
 
     else:
         print("Received message '{}' on topic '{}' with Qos {}".format(payload, message.topic, str(message.qos)))
 
-
+# Sends message to the vehicle
 def sendToCar(message):
     UDPsocket.sendto(message.encode('utf8'), clientAddress)
 
@@ -185,6 +185,7 @@ def UDPlistener():
     while True:
         data, clientAddress = UDPsocket.recvfrom(bufferSize)
         command = json.loads(data.decode("utf-8"))
+        deviceID = command['device']
 
 
 
@@ -223,7 +224,7 @@ def main():
             minimum_backoff_time *= 2
             client.connect(gateway.mqtt_bridge_hostname, gateway.mqtt_bridge_port)
 
-
+        # Command IF statements which are triggered if a message is received from the vehicle
         if command == '' or command == oldMessage:
             continue
         elif command['action'] == 'subscribe':
