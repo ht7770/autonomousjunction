@@ -64,13 +64,6 @@ def getRandomMove():
     print("Vehicle wants to turn: {}".format(choice))
     return choice
 
-def UDPlistener():
-    global message
-    while True:
-        data, clientMessage = UDPsocket.recvfrom(bufferSize)
-        message = data.decode("utf-8")
-
-
 def MakeMessage(deviceID, action, data=''):
     if data:
         return '{{ "device" : "{}", "action":"{}", "data" : "{}" }}'.format(
@@ -121,6 +114,7 @@ def main():
             time.sleep(1)
 
     print("Maneuver Complete")
+    UDPsocket.close()
 
 
 
