@@ -142,9 +142,9 @@ def on_subscribe(unused_client, unused_userdata, mid, granted_qos):
 
 def on_message(unused_client, unused_userdata, message):
     payload = str(message.payload.decode("utf-8"))
-    for x, y in gateway.connectedDevices:
+    for x in gateway.connectedDevices:
         tempDeviceID = x
-        tempAddress = y
+        tempAddress = gateway.connectedDevices[x]
         if message.topic == ('/devices/{}/commands'.format(tempDeviceID)):
             print("Message received for connected vehicle: {}.".format(payload))
             sendToCar(payload, tempAddress)
