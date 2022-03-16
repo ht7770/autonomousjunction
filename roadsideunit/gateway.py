@@ -154,7 +154,8 @@ def on_message(unused_client, unused_userdata, message):
 
 # Sends message to the vehicle
 def sendToCar(message):
-    UDPsocket.sendto(message.encode('utf8'), clientAddress)
+    global vehicleAddress
+    UDPsocket.sendto(message.encode('utf8'), vehicleAddress)
 
 
 # Function that creates the MQTT client
@@ -184,9 +185,9 @@ def createMQTT(projectID, cloudRegion, registryID, gatewayID, private_key_file, 
 # UPD function that is used by the other thread, listens for messages on the UDP socket
 def UDPlistener():
     global command
+    global vehicleAddress
     while True:
-        data, clientAddress = UDPsocket.recvfrom(bufferSize)
-        print("Client Address is: {}".format(clientAddress))
+        data, vehicleAddress = UDPsocket.recvfrom(bufferSize)
         command = json.loads(data.decode("utf-8"))
 
 
