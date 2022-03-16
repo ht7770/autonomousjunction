@@ -252,6 +252,7 @@ def main():
         elif command['action'] == 'detach':
             detach_topic = '/devices/{}/detach'.format(command['device'])
             client.publish(detach_topic, "{}", qos=1)
+            print(gateway.connectedDevices)
             gateway.connectedDevices.remove(command['device'])
 
         else:
