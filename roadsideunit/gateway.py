@@ -10,12 +10,11 @@ import random
 import _thread
 
 hostIP = '192.168.1.154'
-clientIP = '192.168.1.158'
 port = 8888
 bufferSize = 2048
-vehicleAddress = (clientIP, port)
 address = (hostIP, port)
 command = ''
+newAddress = ''
 
 
 
@@ -65,7 +64,7 @@ class Gateway:
     mqtt_command_topic = '/devices/{}/commands/#'.format(gatewayID)
     mqtt_telemetry_topic = '/devices/{}/events'.format(gatewayID)
     mqtt_state_topic = '/devices/{}/state'.format(gatewayID)
-    connectedDevices = []
+    connectedDevices = {}
 
 gateway = Gateway()
 
@@ -143,18 +142,18 @@ def on_subscribe(unused_client, unused_userdata, mid, granted_qos):
 
 def on_message(unused_client, unused_userdata, message):
     payload = str(message.payload.decode("utf-8"))
-    for i in range(0, len(gateway.connectedDevices)):
-        tempDeviceID = gateway.connectedDevices[i]
+    for x, y in gateway.connectedDevices:
+        tempDeviceID = x
+        tempAddress = y
         if message.topic == ('/devices/{}/commands'.format(tempDeviceID)):
             print("Message received for connected vehicle: {}.".format(payload))
-            sendToCar(payload)
+            sendToCar(payload, tempAddress)
 
         else:
             print("Received message '{}' on topic '{}' with Qos {}".format(payload, message.topic, str(message.qos)))
 
 # Sends message to the vehicle
-def sendToCar(message):
-    global vehicleAddress
+def sendToCar(message, vehicleAddress):
     UDPsocket.sendto(message.encode('utf8'), vehicleAddress)
 
 
@@ -185,9 +184,9 @@ def createMQTT(projectID, cloudRegion, registryID, gatewayID, private_key_file, 
 # UPD function that is used by the other thread, listens for messages on the UDP socket
 def UDPlistener():
     global command
-    global vehicleAddress
+    global newAddress
     while True:
-        data, vehicleAddress = UDPsocket.recvfrom(bufferSize)
+        data, newAddress = UDPsocket.recvfrom(bufferSize)
         command = json.loads(data.decode("utf-8"))
 
 
@@ -195,6 +194,7 @@ def UDPlistener():
 def main():
     global gateway
     global command
+    global newAddress
 
     # Amount of times looped to determine how long gateway stays active
     duration = 1000
@@ -247,25 +247,16 @@ def main():
             auth = ''
             attach_payload = '{{"authorization" : "{}"}}'.format(auth)
             client.publish(attach_topic, attach_payload, qos=1)
-            gateway.connectedDevices.append(command['device'])
+            gateway.connectedDevices[command['device']] = newAddress
             oldMessage = command
         elif command['action'] == 'detach':
             detach_topic = '/devices/{}/detach'.format(command['device'])
             client.publish(detach_topic, "{}", qos=1)
             print(gateway.connectedDevices)
-            gateway.connectedDevices.remove(command['device'])
+            gateway.connectedDevices.pop(command['device'])
             oldMessage = command
         else:
             print("Undefined action!")
-
-
-
-
-
-
-
-
-
 
 
 
