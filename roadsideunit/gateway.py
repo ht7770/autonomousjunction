@@ -254,7 +254,7 @@ def main():
             client.publish(detach_topic, "{}", qos=1)
             print(gateway.connectedDevices)
             gateway.connectedDevices.remove(command['device'])
-
+            oldMessage = command
         else:
             print("Undefined action!")
 
