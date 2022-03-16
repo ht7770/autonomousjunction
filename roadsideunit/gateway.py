@@ -13,7 +13,7 @@ hostIP = '192.168.1.154'
 clientIP = '192.168.1.158'
 port = 8888
 bufferSize = 2048
-clientAddress = (clientIP, port)
+vehicleAddress = (clientIP, port)
 address = (hostIP, port)
 command = ''
 
@@ -65,6 +65,7 @@ class Gateway:
     mqtt_command_topic = '/devices/{}/commands/#'.format(gatewayID)
     mqtt_telemetry_topic = '/devices/{}/events'.format(gatewayID)
     mqtt_state_topic = '/devices/{}/state'.format(gatewayID)
+    connectedDevices = []
 
 gateway = Gateway()
 
@@ -142,13 +143,14 @@ def on_subscribe(unused_client, unused_userdata, mid, granted_qos):
 
 def on_message(unused_client, unused_userdata, message):
     payload = str(message.payload.decode("utf-8"))
+    for i in range(0, len(gateway.connectedDevices)):
+        tempDeviceID = gateway.connectedDevices[i]
+        if message.topic == ('/devices/{}/commands'.format(tempDeviceID)):
+            print("Message received for connected vehicle: {}.".format(payload))
+            sendToCar(payload)
 
-    if message.topic == '/devices/car1/commands':
-        print("Message received for connected vehicle: {}.".format(payload))
-        sendToCar(payload)
-
-    else:
-        print("Received message '{}' on topic '{}' with Qos {}".format(payload, message.topic, str(message.qos)))
+        else:
+            print("Received message '{}' on topic '{}' with Qos {}".format(payload, message.topic, str(message.qos)))
 
 # Sends message to the vehicle
 def sendToCar(message):
@@ -184,6 +186,7 @@ def UDPlistener():
     global command
     while True:
         data, clientAddress = UDPsocket.recvfrom(bufferSize)
+        print("Client Address is: {}".format(clientAddress))
         command = json.loads(data.decode("utf-8"))
 
 
@@ -243,6 +246,7 @@ def main():
             auth = ''
             attach_payload = '{{"authorization" : "{}"}}'.format(auth)
             client.publish(attach_topic, attach_payload, qos=1)
+            gateway.connectedDevices.append(command['device'])
             oldMessage = command
         else:
             print("Undefined action!")
