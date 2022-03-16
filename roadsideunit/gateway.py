@@ -249,6 +249,11 @@ def main():
             client.publish(attach_topic, attach_payload, qos=1)
             gateway.connectedDevices.append(command['device'])
             oldMessage = command
+        elif command['action'] == 'detach':
+            detach_topic = '/devices/{}/detach'.format(command['device'])
+            client.publish(detach_topic, "{}", qos=1)
+            gateway.connectedDevices.remove(command['device'])
+
         else:
             print("Undefined action!")
 

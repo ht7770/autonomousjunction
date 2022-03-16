@@ -16,9 +16,6 @@ hostAddress = (hostIP, port)
 UDPsocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 UDPsocket.bind(hostAddress)
 
-
-
-
 possibleTurns = ["right", "left", "forward"]
 deviceID = "car1"
 
@@ -96,7 +93,6 @@ def main():
         data, dataAddress = UDPsocket.recvfrom(bufferSize)
         message = data.decode("utf-8").upper()
         print("Received message from gateway: {}".format(message))
-        time.sleep(1)
 
         if message == "AUTHORISED":
             print("Action approved, car is moving...")
@@ -108,24 +104,13 @@ def main():
                 motor_forward()
             break
         elif message == "UNAUTHORISED":
-            print("Maneuver is not allowed, sleeping for 3 seconds...")
+            print("Maneuver is not yet allowed, waiting for 3 seconds...")
             time.sleep(3)
-        else:
-            time.sleep(1)
 
     print("Maneuver Complete")
+    message = MakeMessage(deviceID, 'detach')
+    sendCommand(message)
     UDPsocket.close()
-
-
-
-
-
-
-
-
-
-
-
 
 if __name__ == '__main__':
     main()
