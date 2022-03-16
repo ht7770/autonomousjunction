@@ -248,13 +248,11 @@ def main():
             attach_payload = '{{"authorization" : "{}"}}'.format(auth)
             client.publish(attach_topic, attach_payload, qos=1)
             gateway.connectedDevices[command['device']] = newAddress
-            print(gateway.connectedDevices)
             oldMessage = command
 
         elif command['action'] == 'detach':
             detach_topic = '/devices/{}/detach'.format(command['device'])
             client.publish(detach_topic, "{}", qos=1)
-            print(gateway.connectedDevices)
             gateway.connectedDevices.pop(command['device'])
             oldMessage = command
         else:
