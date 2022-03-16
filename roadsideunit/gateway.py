@@ -254,6 +254,7 @@ def main():
             detach_topic = '/devices/{}/detach'.format(command['device'])
             client.publish(detach_topic, "{}", qos=1)
             gateway.connectedDevices.pop(command['device'])
+            print("Vehicle {} has disconnected".format(command['device']))
             oldMessage = command
         else:
             print("Undefined action!")
