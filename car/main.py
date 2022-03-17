@@ -8,7 +8,7 @@ PWM=Motor()
 
 # Addresses for server and client
 serverIP = '192.168.1.154'
-hostIP = '192.168.1.158'
+hostIP = socket.gethostbyname(socket.gethostname())
 port = 8888
 bufferSize = 2048
 serverAddress = (serverIP, port)
