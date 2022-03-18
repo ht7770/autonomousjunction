@@ -25,17 +25,6 @@ print("Socket created on port: {}".format(port))
 
 
 
-
-
-# The initial backoff time after a disconnection occurs, in seconds.
-minimum_backoff_time = 1
-
-# The maximum backoff time before giving up, in seconds.
-MAXIMUM_BACKOFF_TIME = 32
-
-# Whether to wait with exponential backoff before publishing.
-should_backoff = False
-
 # List of required variables needed
 projectID = 'azazel-330913'
 cloudRegion = 'europe-west1'
@@ -107,11 +96,6 @@ def on_connect(client, unused_userdata, unused_flags, rc):
     if gateway.connected == True:
         print("Gateway connected")
 
-    global should_backoff
-    global minimum_backoff_time
-    should_backoff = False
-    minimum_backoff_time = 1
-
     # Subscribe to the config, error and command topics.
     client.subscribe(gateway.mqtt_config_topic, qos=1)
     client.subscribe(gateway.mqtt_error_topic, qos=0)
@@ -125,7 +109,6 @@ def on_disconnect(client, unused_userdata, rc):
     gateway.connected = False
     if gateway.connected == False:
         print("Gateway Disconnected")
-    #implement backoff
     client.connect(gateway.mqtt_bridge_hostname, gateway.mqtt_bridge_port)
 
 
@@ -149,8 +132,8 @@ def on_message(unused_client, unused_userdata, message):
             print("Message received for connected vehicle: {}.".format(payload))
             sendToCar(payload, tempAddress)
 
-        else:
-            print("Received message '{}' on topic '{}' with Qos {}".format(payload, message.topic, str(message.qos)))
+
+    print("Received message '{}' on topic '{}' with Qos {}".format(payload, message.topic, str(message.qos)))
 
 # Sends message to the vehicle
 def sendToCar(message, vehicleAddress):
@@ -217,15 +200,6 @@ def main():
             client.publish(gateway.mqtt_state_topic, "Roadside Unit Active", qos=0)
 
 
-        if should_backoff:
-            if minimum_backoff_time > MAXIMUM_BACKOFF_TIME:
-                print("Exceeded max backoff time")
-                break
-
-            delay = minimum_backoff_time + random.randint(0, 1000) / 1000.0
-            time.sleep(delay)
-            minimum_backoff_time *= 2
-            client.connect(gateway.mqtt_bridge_hostname, gateway.mqtt_bridge_port)
 
         # Command IF statements which are triggered if a message is received from the vehicle
         if command == '' or command == oldMessage:
