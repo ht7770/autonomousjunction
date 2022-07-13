@@ -3,7 +3,7 @@ Computer Science Project
 
 This is a computer science dissertation project, this project aims to demonstrate an autonomous car that transmits and recieves data from google cloud to determine if it can pull out of a junction or not. 
 
-# Car
+# car
 
 This folder contains all the code pertaining to the autonomous vehicle, it's ability to navigate the environment, and the code needed to pass messages through the roadside unit to google cloud. 
 
@@ -13,7 +13,7 @@ Computer used for Car - RPi 3 Model A+
 
 Code for driving and initilising the RPi with motors was based on code by Freenove - https://github.com/Freenove/Freenove_4WD_Smart_Car_Kit_for_Raspberry_Pi
 
-# Roadside_Unit
+# roadsideunit
 
 This folder contains all the code that sets up the roadside unit, installs dependencies and allows passthrough of messages between any connected vehicles and google cloud.
 
