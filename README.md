@@ -1,7 +1,7 @@
 # Autonomous Junction
 Computer Science Project
 
-This is a computer science dissertation project, this project aims to demonstrate an autonomous car that transmits and recieves data from google cloud to determine if it can pull out of a junction or not. 
+This project aims to demonstrate an autonomous car that transmits and recieves data from google cloud to help inform its onboard computer on whether it is currently safe to maneuver through a junction. This project has a particular focus on unsual road infrastructure in 1st world countries such as blind junctions with tight turns commonly found in europe. 
 
 # car
 
